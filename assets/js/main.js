@@ -1,4 +1,53 @@
-// Mobile menu toggle and active-section highlighting. No tracking, no external requests.
+// RCEA BEW 2027 site script: mobile menu, active menu entry, and buttons that follow the timeline.
+// No tracking, no external requests.
+
+// ---------------------------------------------------------------------------
+// Timeline. Edit only this block when dates or links change.
+// Times are Salzburg local time (CET until 28 March 2027, CEST afterwards).
+// A button only becomes active when its window is open AND its address is filled in.
+var TIMELINE = {
+  submission: {
+    opens:  '2027-01-07T00:00:00+01:00',
+    closes: '2027-03-15T23:59:59+01:00',
+    href:   '',   // e.g. 'mailto:rcea2027@plus.ac.at?subject=Submission%20RCEA%20BEW%202027'
+    before: 'Submissions open on 7 January 2027',
+    open:   'Submit your paper by email',
+    after:  'Submissions are closed',
+    noLink: 'Submission address follows'
+  },
+  registration: {
+    opens:  '2027-04-19T00:00:00+02:00',
+    closes: '2027-05-07T23:59:59+02:00',
+    href:   '',   // link to the event in "PLUS Veranstaltungen"
+    before: 'Registration opens on 19 April 2027',
+    open:   'Register now',
+    after:  'Registration is closed',
+    noLink: 'Registration link follows'
+  }
+};
+// ---------------------------------------------------------------------------
+
+(function () {
+  // Optional override for testing: ?now=2027-02-01
+  var now = new Date();
+  var m = /[?&]now=([0-9T:+\-]+)/.exec(window.location.search);
+  if (m) { var t = new Date(m[1]); if (!isNaN(t)) now = t; }
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-window]'), function (el) {
+    var w = TIMELINE[el.getAttribute('data-window')];
+    if (!w) return;
+    var opens = new Date(w.opens), closes = new Date(w.closes);
+    if (now < opens) { el.textContent = w.before; return; }
+    if (now > closes) { el.textContent = w.after; return; }
+    if (!w.href) { el.textContent = w.noLink; return; }
+    var a = document.createElement('a');
+    a.className = 'btn btn-solid';
+    a.href = w.href;
+    a.textContent = w.open;
+    el.parentNode.replaceChild(a, el);
+  });
+})();
+
 (function () {
   var toggle = document.querySelector('.nav-toggle');
   var nav = document.getElementById('site-nav');
